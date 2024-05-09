@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pluto_grid_plus/pluto_grid_plus.dart';
+import 'package:pluto_grid_plus/src/model/pluto_column.dart';
 
 import 'ui.dart';
 
@@ -250,18 +251,30 @@ class _CellContainerState extends PlutoStateWithChange<_CellContainer> {
     required Color? cellColorGroupedRow,
     required PlutoGridSelectingMode selectingMode,
   }) {
+    final color = widget.column.colorRender?.call(
+      PlutoColumnCellColorRendererContext(
+        column: widget.column,
+        rowIdx: widget.rowIdx,
+        row: widget.row,
+        cell: widget.cell,
+        stateManager: stateManager,
+        isCurrentCell: isCurrentCell,
+        isSelectedCell: isSelectedCell,
+      ),
+    );
     if (isCurrentCell) {
       return BoxDecoration(
-        color: _currentCellColor(
-          hasFocus: hasFocus,
-          isEditing: isEditing,
-          readOnly: readOnly,
-          gridBackgroundColor: gridBackgroundColor,
-          activatedColor: activatedColor,
-          cellColorInReadOnlyState: cellColorInReadOnlyState,
-          cellColorInEditState: cellColorInEditState,
-          selectingMode: selectingMode,
-        ),
+        color: color ??
+            _currentCellColor(
+              hasFocus: hasFocus,
+              isEditing: isEditing,
+              readOnly: readOnly,
+              gridBackgroundColor: gridBackgroundColor,
+              activatedColor: activatedColor,
+              cellColorInReadOnlyState: cellColorInReadOnlyState,
+              cellColorInEditState: cellColorInEditState,
+              selectingMode: selectingMode,
+            ),
         border: Border.all(
           color: hasFocus ? activatedBorderColor : inactivatedBorderColor,
           width: 1,
@@ -269,7 +282,7 @@ class _CellContainerState extends PlutoStateWithChange<_CellContainer> {
       );
     } else if (isSelectedCell) {
       return BoxDecoration(
-        color: activatedColor,
+        color: color,
         border: Border.all(
           color: hasFocus ? activatedBorderColor : inactivatedBorderColor,
           width: 1,
@@ -277,7 +290,7 @@ class _CellContainerState extends PlutoStateWithChange<_CellContainer> {
       );
     } else {
       return BoxDecoration(
-        color: isGroupedRowCell ? cellColorGroupedRow : null,
+        color: color ?? (isGroupedRowCell ? cellColorGroupedRow : null),
         border: enableCellVerticalBorder
             ? BorderDirectional(
                 end: BorderSide(

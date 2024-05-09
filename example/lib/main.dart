@@ -31,84 +31,7 @@ class PlutoGridExamplePage extends StatefulWidget {
 }
 
 class _PlutoGridExamplePageState extends State<PlutoGridExamplePage> {
-  final List<PlutoColumn> columns = <PlutoColumn>[
-    PlutoColumn(
-      title: 'Id',
-      field: 'id',
-      type: PlutoColumnType.text(),
-    ),
-    PlutoColumn(
-      title: 'Name',
-      field: 'name',
-      type: PlutoColumnType.text(),
-    ),
-    PlutoColumn(
-      title: 'Age',
-      field: 'age',
-      type: PlutoColumnType.number(),
-    ),
-    PlutoColumn(
-      title: 'Role',
-      field: 'role',
-      type: PlutoColumnType.select(<String>[
-        'Programmer',
-        'Designer',
-        'Owner',
-      ]),
-    ),
-    PlutoColumn(
-      title: 'Role 2',
-      field: 'role2',
-      type: PlutoColumnType.select(
-        <String>[
-          'Programmer',
-          'Designer',
-          'Owner',
-        ],
-        builder: (item) {
-          return Row(children: [
-            Icon(item == 'Programmer' ? Icons.code : Icons.design_services),
-            const SizedBox(width: 8),
-            Text(item),
-          ]);
-        },
-      ),
-    ),
-    PlutoColumn(
-      title: 'Joined',
-      field: 'joined',
-      type: PlutoColumnType.date(),
-    ),
-    PlutoColumn(
-      title: 'Working time',
-      field: 'working_time',
-      type: PlutoColumnType.time(),
-    ),
-    PlutoColumn(
-      title: 'salary',
-      field: 'salary',
-      type: PlutoColumnType.currency(),
-      footerRenderer: (rendererContext) {
-        return PlutoAggregateColumnFooter(
-          rendererContext: rendererContext,
-          formatAsCurrency: true,
-          type: PlutoAggregateColumnType.sum,
-          format: '#,###',
-          alignment: Alignment.center,
-          titleSpanBuilder: (text) {
-            return [
-              const TextSpan(
-                text: 'Sum',
-                style: TextStyle(color: Colors.red),
-              ),
-              const TextSpan(text: ' : '),
-              TextSpan(text: text),
-            ];
-          },
-        );
-      },
-    ),
-  ];
+  late final List<PlutoColumn> columns;
 
   final List<PlutoRow> rows = [
     PlutoRow(
@@ -165,6 +88,131 @@ class _PlutoGridExamplePageState extends State<PlutoGridExamplePage> {
   late final PlutoGridStateManager stateManager;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    columns = [
+      PlutoColumn(
+        title: 'Id',
+        field: 'id',
+        type: PlutoColumnType.text(),
+      ),
+      PlutoColumn(
+        title: 'Name',
+        field: 'name',
+        type: PlutoColumnType.text(),
+      ),
+      PlutoColumn(
+        title: 'Age',
+        field: 'age',
+        type: PlutoColumnType.number(),
+        colorRender: (context) => _render(context),
+        renderer: (context) {
+          print('CALLED');
+          return Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  color: Colors.purple,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    context.cell.value.toString(),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      PlutoColumn(
+        title: 'Role',
+        field: 'role',
+        type: PlutoColumnType.select(<String>[
+          'Programmer',
+          'Designer',
+          'Owner',
+        ]),
+      ),
+      PlutoColumn(
+        title: 'Role 2',
+        field: 'role2',
+        type: PlutoColumnType.select(
+          <String>[
+            'Programmer',
+            'Designer',
+            'Owner',
+          ],
+          builder: (item) {
+            return Row(children: [
+              Icon(item == 'Programmer' ? Icons.code : Icons.design_services),
+              const SizedBox(width: 8),
+              Text(item),
+            ]);
+          },
+        ),
+      ),
+      PlutoColumn(
+        title: 'Joined',
+        field: 'joined',
+        type: PlutoColumnType.date(),
+      ),
+      PlutoColumn(
+        title: 'Working time',
+        field: 'working_time',
+        type: PlutoColumnType.time(),
+      ),
+      PlutoColumn(
+        title: 'salary',
+        field: 'salary',
+        type: PlutoColumnType.currency(),
+        footerRenderer: (rendererContext) {
+          return PlutoAggregateColumnFooter(
+            rendererContext: rendererContext,
+            formatAsCurrency: true,
+            type: PlutoAggregateColumnType.sum,
+            format: '#,###',
+            alignment: Alignment.center,
+            titleSpanBuilder: (text) {
+              return [
+                const TextSpan(
+                  text: 'Sum',
+                  style: TextStyle(color: Colors.red),
+                ),
+                const TextSpan(text: ' : '),
+                TextSpan(text: text),
+              ];
+            },
+          );
+        },
+      ),
+    ];
+  }
+
+  Color _render(PlutoColumnCellColorRendererContext context) {
+    final color = switch (context.cell.value) {
+      >= 20 && < 25 => Colors.red,
+      >= 25 && < 40 => Colors.yellow,
+      >= 40 && < 50 => Colors.blue,
+      >= 50 => Colors.green,
+      _ => Colors.grey
+    };
+
+    return context.isCurrentCell || context.isSelectedCell
+        ? color.withOpacity(0.5)
+        : color;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -175,12 +223,27 @@ class _PlutoGridExamplePageState extends State<PlutoGridExamplePage> {
           columnGroups: columnGroups,
           onLoaded: (PlutoGridOnLoadedEvent event) {
             stateManager = event.stateManager;
-            stateManager.setShowColumnFilter(true);
+            stateManager.setSelectingMode(PlutoGridSelectingMode.cell);
+            stateManager.setShowColumnFilter(false);
+            stateManager.setShowColumnTitle(false);
+            stateManager.setShowColumnFooter(false);
           },
           onChanged: (PlutoGridOnChangedEvent event) {
             print(event);
           },
-          configuration: const PlutoGridConfiguration(),
+          configuration: const PlutoGridConfiguration(
+            columnSize: PlutoGridColumnSizeConfig(
+              autoSizeMode: PlutoAutoSizeMode.none,
+            ),
+            style: PlutoGridStyleConfig(
+              activatedColor: Colors.transparent,
+              cellColorInEditState: Colors.transparent,
+              enableGridBorderShadow: true,
+              defaultCellPadding: EdgeInsets.zero,
+              defaultColumnTitlePadding: EdgeInsets.zero,
+              defaultColumnFilterPadding: EdgeInsets.zero,
+            ),
+          ),
         ),
       ),
     );

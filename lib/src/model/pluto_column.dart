@@ -119,6 +119,9 @@ class PlutoColumn {
   /// if you are defining custom cells with high paint cost.
   PlutoColumnRenderer? renderer;
 
+  Color Function(PlutoColumnCellColorRendererContext rendererContext)?
+      colorRender;
+
   /// A callback that returns a widget
   /// for expressing aggregate values at the bottom.
   ///
@@ -242,6 +245,7 @@ class PlutoColumn {
     this.enableAutoEditing = false,
     this.enableEditingMode = true,
     this.hide = false,
+    this.colorRender,
   })  : _key = UniqueKey(),
         _checkReadOnly = checkReadOnly;
 
@@ -368,6 +372,21 @@ class PlutoColumnRendererContext {
     required this.row,
     required this.cell,
     required this.stateManager,
+  });
+}
+
+class PlutoColumnCellColorRendererContext extends PlutoColumnRendererContext {
+  final bool isCurrentCell;
+  final bool isSelectedCell;
+
+  PlutoColumnCellColorRendererContext({
+    required super.column,
+    required super.rowIdx,
+    required super.row,
+    required super.cell,
+    required super.stateManager,
+    required this.isCurrentCell,
+    required this.isSelectedCell,
   });
 }
 
