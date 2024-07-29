@@ -84,6 +84,7 @@ class PlutoGridStateChangeNotifier extends PlutoChangeNotifier
     this.onRowsMoved,
     this.onColumnsMoved,
     this.rowColorCallback,
+    this.selectDateCallback,
     this.createHeader,
     this.createFooter,
     PlutoColumnMenuDelegate? columnMenuDelegate,
@@ -160,6 +161,9 @@ class PlutoGridStateChangeNotifier extends PlutoChangeNotifier
   final CreateFooterCallBack? createFooter;
 
   @override
+  final PlutoSelectDateCallBack? selectDateCallback;
+
+  @override
   final PlutoColumnMenuDelegate columnMenuDelegate;
 
   final PlutoChangeNotifierFilterResolver notifierFilterResolver;
@@ -219,11 +223,13 @@ class PlutoGridStateChangeNotifier extends PlutoChangeNotifier
 /// ```
 /// {@endtemplate}
 class PlutoGridStateManager extends PlutoGridStateChangeNotifier {
+  final rowWrapper;
   PlutoGridStateManager({
     required super.columns,
     required super.rows,
     required super.gridFocusNode,
     required super.scroll,
+    this.rowWrapper,
     super.columnGroups,
     super.onChanged,
     super.onSelected,
@@ -236,6 +242,7 @@ class PlutoGridStateManager extends PlutoGridStateChangeNotifier {
     super.onRowsMoved,
     super.onColumnsMoved,
     super.rowColorCallback,
+    super.selectDateCallback,
     super.createHeader,
     super.createFooter,
     super.columnMenuDelegate,
